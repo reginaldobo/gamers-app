@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gamers-app
+  namespace: default
+spec:
+  replicas: 3
+  strategy:
+   type: RollingUpdate
+   rollingUpdate:
+     maxSurge: 1
+     maxUnavailable: 25%  
+  selector:
+    matchLabels:
+      app: gamers-app
+  template:
+    metadata:
+      labels:
+        app: gamers-app
+    spec:
+      containers:
+      - name: gamers-app
+        image: reginaldobo/gamers-app:v1
+        env:
+        - name: SERVER_URI_PORT
+          value: "8080"
+        - name: NODE_ENV
+          value: "production"
+        - name: SERVER_REQUEST_TIMEOUT
+          value: "1s"
+        - name: STORAGE_MONGO_HOSTNAME
+          value: "172.17.0.5"
+        - name: STORAGE_MONGO_PORT
+          value: "27017"
+        - name: STORAGE_MONGO_USERNAME
+          value: "admin"
+        - name: STORAGE_MONGO_PASSWORD
+          value: "MyPass123"
+        - name: STORAGE_MONGO_CONNECT_POOL_SIZE
+          value: "100"
+        - name: STORAGE_MONGO_CONNECT_TIMEOUT
+          value: "1s"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+
